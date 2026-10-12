@@ -1,0 +1,207 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* @import './base.css';
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+} */
+
+*,
+::before,
+::after {
+  @apply outline-primary/25;
+}
+
+*:focus-visible,
+*:has(> a:focus-visible) {
+  --tw-ring-color: var(--ui-primary);
+}
+
+/* :root {
+  --ui-bg: var(--color-tan-50);
+  --ui-bg-muted: var(--color-tan-100);
+  --ui-bg-elevated: var(--color-tan-200);
+  --ui-bg-accented: var(--color-tan-300);
+} */
+
+/*.dark {
+  --ui-bg: var(--color-neutral-900);
+  --ui-bg-muted: var(--color-neutral-850);
+  --ui-bg-elevated: var(--color-neutral-800);
+  --ui-bg-accented: var(--color-neutral-750);
+} */
+
+/* Scrollbar */
+* {
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  scrollbar-width: 6px;
+  scrollbar-color: transparent;
+}
+
+::-webkit-scrollbar {
+  height: 6px;
+  width: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(128, 128, 128, 0.5);
+  border-radius: 3px;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+    @apply rounded-tl-2xl rounded-br-2xl;
+  }
+}
+
+@theme static {
+  --color-oxford-blue-50: oklch(0.923 0.037 270.48);
+  --color-oxford-blue-100: oklch(0.854 0.072 268.3);
+  --color-oxford-blue-200: oklch(0.701 0.156 260.58);
+  --color-oxford-blue-300: oklch(0.555 0.179 254.47);
+  --color-oxford-blue-400: oklch(0.399 0.129 254.44);
+  --color-oxford-blue-500: oklch(0.25 0.081 254.41);
+  --color-oxford-blue-600: oklch(0.225 0.074 254.85);
+  --color-oxford-blue-700: oklch(0.207 0.067 254.46);
+  --color-oxford-blue-800: oklch(0.179 0.056 253.63);
+  --color-oxford-blue-900: oklch(0.151 0.048 254.22);
+  --color-oxford-blue-950: oklch(0.106 0.032 251.95);
+
+  --color-tan-50: oklch(0.975 0.008 73.73);
+  --color-tan-100: oklch(0.958 0.013 71.33);
+  --color-tan-200: oklch(0.914 0.028 70.93);
+  --color-tan-300: oklch(0.873 0.047 72.39);
+  --color-tan-400: oklch(0.829 0.067 73.37);
+  --color-tan-500: oklch(0.786 0.064 74.61);
+  --color-tan-600: oklch(0.657 0.053 74.61);
+  --color-tan-700: oklch(0.528 0.044 75.67);
+  --color-tan-800: oklch(0.398 0.032 76.23);
+  --color-tan-900: oklch(0.266 0.021 72.9);
+  --color-tan-950: oklch(0.199 0.016 75.95);
+}
+
+@theme {
+  --font-sans: "Open Sans", "Public Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-manrope: "Manrope", sans-serif;
+}
+
+/* ==========================================================================
+   View Transitions & Auth Layout Animations
+   ========================================================================== */
+
+@utility auth-back-btn {
+  view-transition-name: auth-back-btn;
+}
+
+@utility auth-theme-btn {
+  view-transition-name: auth-theme-btn;
+}
+
+@utility auth-banner {
+  view-transition-name: auth-banner;
+}
+
+@utility auth-card {
+  view-transition-name: auth-card;
+}
+
+/* Keep root background solid — prevents background pulsing during transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Synchronized, hardware-accelerated slide for both banner and card */
+::view-transition-group(auth-banner),
+::view-transition-group(auth-card) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+/* Banner cross-fade (image + overlay stay unified, zero jitter or shaking) */
+::view-transition-old(auth-banner) {
+  animation: 0.3s ease-out both fade-out;
+}
+
+::view-transition-new(auth-banner) {
+  animation: 0.45s ease-in both fade-in;
+}
+
+/* Card cross-fade: clean horizontal morph without vertical jump or empty gap */
+::view-transition-old(auth-card) {
+  animation: 0.22s ease-out both fade-out;
+}
+
+::view-transition-new(auth-card) {
+  animation: 0.38s ease-in 0.05s both fade-in;
+}
+
+/* Floating top navigation buttons remain steady */
+::view-transition-group(auth-back-btn),
+::view-transition-group(auth-theme-btn) {
+  animation-duration: 0.2s;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

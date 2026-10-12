@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="appstore.client/appstore.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="appStore.Server/appStore.Server.csproj" />
+</Solution>

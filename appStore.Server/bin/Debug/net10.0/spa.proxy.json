@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:63175",
+"RedirectUrl": "",
+"LaunchCommand": "pnpm run dev",
+"WorkingDirectory": "C:\\dev\\appStore\\appStore.Server\\..\\appstore.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}

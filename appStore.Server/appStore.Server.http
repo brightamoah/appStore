@@ -1,0 +1,217 @@
+@HttpsHostAddress = https://localhost:7089
+@HostAddress = http://localhost:5044
+@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmODk0MjhlNS04ZDVhLTQyNmEtYmZjNy05ODkwYzZjMTExOTIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImY4OTQyOGU1LThkNWEtNDI2YS1iZmM3LTk4OTBjNmMxMTE5MiIsImVtYWlsIjoiYnJpZ2h0QGdtYWlsLmNvbSIsImp0aSI6ImE4OGYxZTM5LTE5OWQtNGIxMS04ZGM1LTdlZjkyNGExNjI3YSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwicGVybWlzc2lvbiI6WyJ0YXNrcy5yZWFkIiwidGFzay5kZWxldGUiLCJ0YXNrLmNyZWF0ZSIsInRhc2sudXBkYXRlIiwidXNlcnMubWFuYWdlIl0sIm5iZiI6MTc4OTkyNDc0NywiZXhwIjoxNzg5OTI1NjQ3LCJpc3MiOiJhcHBTdG9yZSIsImF1ZCI6ImFwcFN0b3JlLkNsaWVudCJ9.F2Yg62DjVLFNruLJEt-LS3NnlW0YK_D2jG9wPRjE7Ss
+
+@priorityId = 6
+@roleId = 6
+
+GET {{HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+GET {{HostAddress}}/api/tasks/
+Accept: application/json
+
+###
+POST {{HostAddress}}/api/tasks/
+Content-Type: application/json
+
+{
+    "name": "Learn C# with ASP.NET 10 and Vue",
+    "description": "Learn C# with ASP.NET 10 and Vue",
+    "priorityId": 3
+}
+
+###
+GET {{HostAddress}}/api/tasks/ec5a748f-2cc1-4a5d-8068-045260f24775
+Content-Type: application/json
+
+###
+
+PUT {{HostAddress}}/api/tasks/ec5a748f-2cc1-4a5d-8068-045260f24775
+Content-Type: application/json
+
+{
+  "name": "Updated Task Name with PUT",
+  "description": "Updated Task Description",
+  "priorityId": -9,
+  "isCompleted": false
+}
+
+###
+PATCH {{HostAddress}}/api/tasks/cb9d63e5-1cc3-4141-bca5-c31d7d452daa
+Content-Type: application/json
+
+{
+  "isCompleted": true
+}
+
+###
+
+GET {{HostAddress}}/api/priorities
+Content-Type: application/json
+
+###
+
+GET {{HostAddress}}/api/priorities/{{priorityId}}
+Content-Type: application/json
+
+###
+POST {{HostAddress}}/api/priorities
+Content-Type: application/json
+
+{
+  "name": "Some needed"
+}
+
+###
+PATCH  {{HostAddress}}/api/priorities/{{priorityId}}
+Content-Type: application/json
+
+{
+  "name": ""
+}
+###
+DELETE {{HostAddress}}/api/priorities/{{priorityId}}
+
+
+###
+POST {{HostAddress}}/api/auth/signup
+Content-Type: application/json
+
+{
+    "name": "Sam Larry",
+    "email": "",
+    "password": "Password$"
+}
+
+###
+GET {{HostAddress}}/api/auth/3F014AA3-6449-49D8-8E9D-74D6EF048043
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+GET {{HostAddress}}/api/auth/me
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+
+GET {{HostAddress}}/api/users/3f014aa3-6449-49d8-8e9d-74d6ef048043
+
+
+###
+# @name getCsrf
+GET {{HttpsHostAddress}}/api/auth/csrf
+
+###
+POST {{HttpsHostAddress}}/api/auth/login
+Content-Type: application/json
+X-CSRF-TOKEN: {{getCsrf.response.body.csrfToken}}
+
+
+{
+    "email": "bright@gmail.com",
+    "password": "Password$"
+}
+###
+POST {{HttpsHostAddress}}/api/auth/logout
+X-CSRF-TOKEN: {{getCsrf.response.body.csrfToken}}
+
+###
+
+GET {{HostAddress}}/api/users
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+###
+
+GET {{HostAddress}}/api/roles
+Content-Type: application/json
+
+###
+GET {{HostAddress}}/api/roles/{{roleId}}
+Content-Type: application/json
+
+###
+POST {{HostAddress}}/api/roles
+Content-Type: application/json
+
+{
+    "name": "Viewer",
+    "description": "Read-only access to permitted resources"
+}
+
+###
+PATCH {{HostAddress}}/api/roles/3
+Content-Type: application/json
+
+{
+    "description": "Manage users, tasks, and team activity"
+}
+
+###
+
+
+###
+DELETE {{HostAddress}}/api/roles/9
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+
+###
+GET {{HostAddress}}/api/users/f89428e5-8d5a-426a-bfc7-9890c6c11192/roles
+Content-Type: application/json
+
+###
+POST {{HostAddress}}/api/users/f89428e5-8d5a-426a-bfc7-9890c6c11192/roles/2
+Content-Type: application/json
+# Authorization: Bearer {{accessToken}}
+
+###
+DELETE {{HostAddress}}/api/users/3f014aa3-6449-49d8-8e9d-74d6ef048043/roles/3
+Content-Type: application/json
+
+###
+GET {{HostAddress}}/api/permissions
+Content-Type: application/json
+
+###
+GET {{HostAddress}}/api/permissions/3
+Content-Type: application/json
+
+###
+POST {{HostAddress}}/api/permissions
+Content-Type: application/json
+
+{
+    "name": "users.manage",
+    "description": "Create, update, deactivate, and manage users"
+}
+
+###
+PATCH {{HostAddress}}/api/permissions/1
+Content-Type: application/json
+
+{
+  "name": "tasks.read"
+}
+
+###
+GET {{HostAddress}}/api/permissions/1
+Content-Type: application/json
+
+###
+POST {{HostAddress}}/api/roles/2/permissions/1
+Content-Type: application/json
+
+###
+DELETE {{HostAddress}}/api/roles/2/permissions/1
+
+###
+GET {{HostAddress}}/api/users/test
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+###
+# @name =getCsrf
+GET {{HttpsHostAddress}}/api/auth/csrf

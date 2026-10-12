@@ -1,0 +1,12 @@
+minimumReleaseAgeExcludePrune: true
+
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  - semver
+
+shamefullyHoist: true
+shellEmulator: true
+
+allowBuilds:
+  esbuild: true
+  vue-demi: true
