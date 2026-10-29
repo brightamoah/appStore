@@ -9,6 +9,8 @@ onMounted(() => {
 <template>
   <UApp>
     <RouterView />
+
+    <AuthSessionInactivityModal />
   </UApp>
 </template>
 

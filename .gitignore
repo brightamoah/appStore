@@ -1,43 +1,144 @@
-# Logs
-logs
-*.log
+# ==============================================================================
+# .gitignore for AppStore (Full-Stack ASP.NET Core 10 + Vue 3.5 / Nuxt UI Client)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Build Artifacts & Binaries (.NET & MSBuild)
+# ------------------------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+[Tt]emp/
+[Tt]mp/
+
+# ------------------------------------------------------------------------------
+# Visual Studio & User-Specific Settings
+# ------------------------------------------------------------------------------
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+*.vsp
+*.vspx
+*.sap
+*.opendb
+*.dbmdl
+*.psess
+*.pidb
+*.ipch
+*.opensdf
+*.sdf
+
+# ------------------------------------------------------------------------------
+# JetBrains Rider / ReSharper
+# ------------------------------------------------------------------------------
+.idea/
+*.DotSettings.user
+_ReSharper*/
+cycles.xml
+*.sarif
+
+# ------------------------------------------------------------------------------
+# NuGet Packages & Dependencies
+# ------------------------------------------------------------------------------
+*.nupkg
+*.snupkg
+**/packages/
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.assets.json
+
+# ------------------------------------------------------------------------------
+# Database & SQLite Storage Files
+# ------------------------------------------------------------------------------
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+appstore.db
+TasksContext.db
+
+# ------------------------------------------------------------------------------
+# Testing, Code Coverage & Traces
+# ------------------------------------------------------------------------------
+[Tt]est[Rr]esult*/
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.msCoverageSourceRootsMapping*
+CoverletSourceRootsMapping*
+__screenshots__/
+/cypress/videos/
+/cypress/screenshots/
+
+# ------------------------------------------------------------------------------
+# Secrets & Environment Configurations
+# ------------------------------------------------------------------------------
+appsettings*.local.json
+appsettings.Production.json
+appsettings.Development.local.json
+.env.local
+.env.*.local
+*.local
+
+# ------------------------------------------------------------------------------
+# Node.js, Vue, Vite & Client Artifacts (appstore.client)
+# ------------------------------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+.output/
+.nuxt/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# Vite & Bundler Outputs
+*.timestamp-*-*.mjs
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Auto-generated client declarations & configs
+auto-imports.d.ts
+components.d.ts
+typed-router.d.ts
+.eslintrc-auto-import.json
+
+# Package Manager Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
-*.local
-
-# Editor directories and files
+# ------------------------------------------------------------------------------
+# Editor & IDE Directories
+# ------------------------------------------------------------------------------
 .vscode/*
 !.vscode/extensions.json
-.idea
-*.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
-*.vs
+*~
 
-*.tsbuildinfo
-
-.eslintcache
-
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
-
-# Vitest
-__screenshots__/
-
-# Vite
-*.timestamp-*-*.mjs
-
-auto-imports.d.ts
-components.d.ts
+# ------------------------------------------------------------------------------
+# OS-Generated Files
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Thumbs.db:encryptable
+desktop.ini
+$RECYCLE.BIN/

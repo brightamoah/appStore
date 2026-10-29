@@ -6,7 +6,6 @@ using appStore.Server.Errors;
 using appStore.Server.Extensions;
 using appStore.Server.Services.Interfaces;
 
-
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +35,6 @@ namespace appStore.Server.Controllers
 			});
 		}
 
-
 		[RequireSameUserOrPermission]
 		[HttpGet("{id:guid}")]
 		public async Task<ActionResult<UserDto>> GetUserById(Guid id, CancellationToken cancellationToken)
@@ -46,14 +44,13 @@ namespace appStore.Server.Controllers
 			return Ok(user);
 		}
 
-
 		[Authorize]
 		[HttpGet("me")]
 		public async Task<ActionResult<UserDto>> GetCurrentUser(CancellationToken cancellationToken)
 		{
 			var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			if(string.IsNullOrWhiteSpace(userIdClaim))
+			if (string.IsNullOrWhiteSpace(userIdClaim))
 			{
 				throw AppException.Unauthorized(
 					"The access token does not contain a valid user identifier.",
@@ -61,7 +58,7 @@ namespace appStore.Server.Controllers
 				);
 			}
 
-			if(!Guid.TryParse(userIdClaim, out var userId))
+			if (!Guid.TryParse(userIdClaim, out var userId))
 			{
 				throw AppException.Unauthorized(
 					"Invalid token: User ID claim is not valid.",
@@ -74,7 +71,6 @@ namespace appStore.Server.Controllers
 			return Ok(user);
 		}
 
-
 		[AllowAnonymous]
 		[HttpPost("signup")]
 		[EnableRateLimiting(RateLimiterExtensions.AuthPolicy)]
@@ -84,11 +80,10 @@ namespace appStore.Server.Controllers
 			CancellationToken cancellationToken
 		)
 		{
-			var user =
-				await userService.CreateUserAsync(
-					createUserDto,
-					cancellationToken
-				);
+			var user = await userService.CreateUserAsync(
+				createUserDto,
+				cancellationToken
+			);
 
 			return CreatedAtAction(
 				nameof(GetUserById),
@@ -110,8 +105,7 @@ namespace appStore.Server.Controllers
 			CancellationToken cancellationToken
 		)
 		{
-			var result = await authenticationService
-				.LoginAsync(loginDto, cancellationToken); 
+			var result = await authenticationService.LoginAsync(loginDto, cancellationToken);
 
 			var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown-ip";
 
@@ -133,19 +127,18 @@ namespace appStore.Server.Controllers
 					permissions = result.Permissions,
 				},
 				accessToken = result.AccessToken,
-				//refreshToken = result.RefreshToken
+				refreshToken = result.RefreshToken
 			});
 		}
 
-
 		[AllowAnonymous]
 		[HttpPost("refresh")]
-		[ValidateAntiforgeryToken]
 		public async Task<ActionResult> Refresh(CancellationToken cancellationToken)
 		{
-			var refreshToken = refreshTokenCookieService.GetRefreshToken(Request);
+			var refreshToken = refreshTokenCookieService.GetRefreshToken(Request)
+				?? Request.Headers["X-Refresh-Token"].FirstOrDefault();
 
-			if(string.IsNullOrWhiteSpace(refreshToken))
+			if (string.IsNullOrWhiteSpace(refreshToken))
 			{
 				throw AppException.Unauthorized(
 					"Invalid refresh token.",
@@ -154,8 +147,8 @@ namespace appStore.Server.Controllers
 			}
 
 			var result = await authenticationService.RefreshAsync(
-			   refreshToken,
-			   cancellationToken
+				refreshToken,
+				cancellationToken
 			);
 
 			refreshTokenCookieService.SetRefreshTokenCookie(
@@ -167,19 +160,19 @@ namespace appStore.Server.Controllers
 			return Ok(new
 			{
 				message = "Token refreshed successfully.",
-				accessToken = result.AccessToken
-			}
-			);
+				accessToken = result.AccessToken,
+				refreshToken = result.RefreshToken
+			});
 		}
-
 
 		[AllowAnonymous]
 		[HttpPost("logout")]
 		public async Task<IActionResult> Logout(CancellationToken cancellationToken)
 		{
-			var refreshToken = refreshTokenCookieService.GetRefreshToken(Request);
+			var refreshToken = refreshTokenCookieService.GetRefreshToken(Request)
+				?? Request.Headers["X-Refresh-Token"].FirstOrDefault();
 
-			if(!string.IsNullOrWhiteSpace(refreshToken))
+			if (!string.IsNullOrWhiteSpace(refreshToken))
 			{
 				await authenticationService.RevokeRefreshTokenAsync(
 					refreshToken,

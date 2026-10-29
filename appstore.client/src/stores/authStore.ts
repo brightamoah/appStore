@@ -69,14 +69,28 @@ export const useAuthStore = defineStore("authStore", () => {
       user.value = response;
       return response;
     }
-    catch (error) {
-      if (error && typeof error === "object") {
-        const err = error as { status?: number; isUnauthorized?: boolean };
-        if (err.status === 401 || err.isUnauthorized) {
+    catch (fetchError) {
+      if (fetchError && typeof fetchError === "object") {
+        const resolvedError = fetchError as { status?: number; isUnauthorized?: boolean };
+        if (resolvedError.status === 401 || resolvedError.isUnauthorized) {
           clearAuthState();
         }
       }
-      throw error;
+      throw fetchError;
+    }
+  };
+
+  /**
+   * Refreshes the session access token using the HttpOnly cookie or fallback header.
+   */
+  const refreshToken = async () => {
+    isLoading.value = true;
+    try {
+      const refreshedToken = await api.refreshToken();
+      return refreshedToken;
+    }
+    finally {
+      isLoading.value = false;
     }
   };
 
@@ -138,6 +152,9 @@ export const useAuthStore = defineStore("authStore", () => {
       const response = await api.post("/api/v1/auth/login", credentials);
 
       api.setAccessToken(response.accessToken);
+      if (response.refreshToken) {
+        api.setRefreshToken(response.refreshToken);
+      }
 
       user.value = response.data.user;
       roles.value = response.data.roles;
@@ -192,6 +209,7 @@ export const useAuthStore = defineStore("authStore", () => {
     hasRole,
     hasPermission,
     fetchUser,
+    refreshToken,
     initAuth,
     login,
     logout,

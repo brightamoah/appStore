@@ -124,6 +124,7 @@ export const loginResponseSchema = z.object({
     permissions: z.array(z.string()),
   }),
   accessToken: z.string(),
+  refreshToken: z.string().optional(),
 });
 export const authResponseSchema = loginResponseSchema;
 
@@ -135,6 +136,7 @@ export const signUpResponseSchema = z.object({
 export const refreshResponseSchema = z.object({
   message: z.string(),
   accessToken: z.string(),
+  refreshToken: z.string().optional(),
 });
 
 export const csrfResponseSchema = z.object({

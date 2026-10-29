@@ -17,6 +17,7 @@ const open = defineModel<boolean>("open", { default: false });
 
 const taskStore = useTaskStore();
 const projectStore = useProjectStore();
+const boardStore = useBoardStore();
 const authStore = useAuthStore();
 const toast = useToast();
 
@@ -146,6 +147,81 @@ const quickAssignDropdownItems = computed(() => {
 const validNextStatuses = computed<TaskStatus[]>(() => {
   if (!taskItem) return [];
   return ALLOWED_STATUS_TRANSITIONS[taskItem.status] || [];
+});
+
+type BadgeColor = "primary" | "secondary" | "success" | "info" | "warning" | "error" | "neutral";
+
+function normalizeColorToBadge(color?: string | null): BadgeColor {
+  const normalized = color?.toLowerCase();
+  switch (normalized) {
+    case "primary": return "primary";
+    case "secondary": return "secondary";
+    case "success": return "success";
+    case "info": return "info";
+    case "warning": return "warning";
+    case "error": return "error";
+    case "neutral":
+    default:
+      return "neutral";
+  }
+}
+
+function getColumnForStatus(status: TaskStatus): BoardColumn | undefined {
+  return boardStore.columns.find(column => column.statusMapping === status);
+}
+
+function getStatusBadgeColor(status: TaskStatus, columnId?: string | null): BadgeColor {
+  if (columnId) {
+    const matchingColumn = boardStore.columns.find(column => column.id === columnId);
+    if (matchingColumn?.color) {
+      return normalizeColorToBadge(matchingColumn.color);
+    }
+  }
+
+  const mappedColumn = getColumnForStatus(status);
+  if (mappedColumn?.color) {
+    return normalizeColorToBadge(mappedColumn.color);
+  }
+
+  switch (status) {
+    case "Completed":
+    case "Closed":
+      return "success";
+    case "InProgress":
+      return "info";
+    case "UnderReview":
+    case "ReadyForTest":
+      return "warning";
+    case "Cancelled":
+      return "error";
+    default:
+      return "neutral";
+  }
+}
+
+function getStatusDotClass(status: TaskStatus, columnId?: string | null): string {
+  const badgeColor = getStatusBadgeColor(status, columnId);
+  switch (badgeColor) {
+    case "primary": return "bg-primary";
+    case "secondary": return "bg-secondary";
+    case "success": return "bg-success";
+    case "info": return "bg-sky-500";
+    case "warning": return "bg-amber-500";
+    case "error": return "bg-red-500";
+    case "neutral":
+    default:
+      return "bg-neutral-400";
+  }
+}
+
+const currentStatusBadgeColor = computed<BadgeColor>(() => {
+  if (!taskItem) return "neutral";
+  return getStatusBadgeColor(taskItem.status, taskItem.columnId);
+});
+
+const currentStatusDotClass = computed<string>(() => {
+  if (!taskItem) return "bg-neutral-400";
+  return getStatusDotClass(taskItem.status, taskItem.columnId);
 });
 
 async function handleToggleMember(memberId: string) {
@@ -455,10 +531,17 @@ const editForm = useTemplateRef("editForm");
 
                 <UBadge
                   :label="metadataStore.getStatusLabel(taskItem.status)"
-                  color="primary"
+                  :color="currentStatusBadgeColor"
                   variant="subtle"
-                  class="font-semibold"
-                />
+                  class="gap-1.5 font-semibold"
+                >
+                  <template #leading>
+                    <span
+                      class="rounded-full size-2 shrink-0"
+                      :class="currentStatusDotClass"
+                    />
+                  </template>
+                </UBadge>
               </div>
 
               <div class="flex flex-col gap-1 mb-4">
@@ -474,10 +557,17 @@ const editForm = useTemplateRef("editForm");
                     :label="metadataStore.getStatusLabel(status)"
                     :loading="isUpdatingStatus"
                     variant="subtle"
-                    color="neutral"
+                    :color="getStatusBadgeColor(status)"
                     size="xs"
                     @click="handleStatusChange(status)"
-                  />
+                  >
+                    <template #leading>
+                      <span
+                        class="rounded-full size-1.5 shrink-0"
+                        :class="getStatusDotClass(status)"
+                      />
+                    </template>
+                  </UButton>
                 </div>
 
                 <span
@@ -491,7 +581,7 @@ const editForm = useTemplateRef("editForm");
           </div>
 
           <!-- ASSIGNEES SECTION -->
-          <div class="space-y-1 mt-5">
+          <div class="space-y-1 mt-10">
             <div class="flex justify-between items-center">
               <div class="flex items-center gap-1.5">
                 <UIcon
@@ -581,7 +671,7 @@ const editForm = useTemplateRef("editForm");
             </div>
           </div>
 
-          <div class="space-y-2 mt-5">
+          <div class="space-y-2 mt-10">
             <div class="flex items-center gap-1.5">
               <UIcon
                 name="i-lucide:align-left"
@@ -598,7 +688,7 @@ const editForm = useTemplateRef("editForm");
             </div>
           </div>
 
-          <div class="gap-5 grid grid-cols-2 bg-muted/40 mt-7 p-4 border border-default rounded-xl text-sm">
+          <div class="gap-5 grid grid-cols-2 bg-muted/40 mt-10 p-4 border border-default rounded-xl text-sm">
             <div class="space-y-1">
               <div class="flex items-center gap-1.5 text-muted">
                 <UIcon

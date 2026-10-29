@@ -180,6 +180,8 @@ export interface IApiClient {
 
   setAccessToken: (token: string | null) => void;
   getAccessToken: () => string | null;
+  setRefreshToken: (token: string | null) => void;
+  getRefreshToken: () => string | null;
   setCsrfToken: (token: string | null) => void;
   getCsrfToken: () => string | null;
   clearTokens: () => void;

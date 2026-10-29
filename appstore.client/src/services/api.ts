@@ -88,12 +88,13 @@ function toApiError(error: unknown): ApiError {
 }
 
 /**
- * Storage key used to persist the access token in localStorage across reloads
+ * Storage keys used to persist tokens in localStorage across reloads
  */
 const ACCESS_TOKEN_KEY = "app_store_access_token";
+const REFRESH_TOKEN_KEY = "app_store_refresh_token";
 
 /**
- * Helper to safely access localStorage in browser environments
+ * Helpers to safely access localStorage in browser environments
  */
 function getStoredToken(): string | null {
   if (typeof window !== "undefined" && window.localStorage) {
@@ -115,6 +116,34 @@ function setStoredToken(token: string | null): void {
       }
       else {
         window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+      }
+    }
+    catch {
+      // Ignore storage errors
+    }
+  }
+}
+
+function getStoredRefreshToken(): string | null {
+  if (typeof window !== "undefined" && window.localStorage) {
+    try {
+      return window.localStorage.getItem(REFRESH_TOKEN_KEY);
+    }
+    catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function setStoredRefreshToken(token: string | null): void {
+  if (typeof window !== "undefined" && window.localStorage) {
+    try {
+      if (token) {
+        window.localStorage.setItem(REFRESH_TOKEN_KEY, token);
+      }
+      else {
+        window.localStorage.removeItem(REFRESH_TOKEN_KEY);
       }
     }
     catch {
@@ -173,6 +202,7 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
 
   // Internal state
   let accessToken: string | null = getStoredToken();
+  let fallbackRefreshToken: string | null = getStoredRefreshToken();
   let csrfToken: string | null = null;
   let csrfPromise: Promise<string> | null = null;
   let refreshPromise: Promise<string> | null = null;
@@ -188,8 +218,8 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
       try {
         listener(error);
       }
-      catch (e) {
-        console.error("Error in auth failure listener:", e);
+      catch (listenerError) {
+        console.error("Error in auth failure listener:", listenerError);
       }
     }
   }
@@ -199,8 +229,8 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
       try {
         listener(token);
       }
-      catch (e) {
-        console.error("Error in token refreshed listener:", e);
+      catch (listenerError) {
+        console.error("Error in token refreshed listener:", listenerError);
       }
     }
   }
@@ -244,8 +274,24 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
           status: 500,
         });
       }
-      catch (err) {
-        throw toApiError(err);
+      catch (primaryError) {
+        // If request with bearer token fails (e.g. token expired), retry csrf anonymously
+        if (accessToken) {
+          try {
+            const anonymousResponse = await rawFetch<CsrfResponse>("/api/v1/auth/csrf", {
+              method: "GET",
+              credentials: "include",
+            });
+            if (anonymousResponse && anonymousResponse.csrfToken) {
+              csrfToken = anonymousResponse.csrfToken;
+              return csrfToken;
+            }
+          }
+          catch {
+            // Ignore fallback error and rethrow primary
+          }
+        }
+        throw toApiError(primaryError);
       }
       finally {
         csrfPromise = null;
@@ -257,6 +303,7 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
 
   /**
    * Refreshes access token via POST /api/v1/auth/refresh with single-flight mutex.
+   * Primary transport is HttpOnly cookie with fallback to X-Refresh-Token header.
    */
   async function refreshAccessToken(): Promise<string> {
     if (refreshPromise) {
@@ -265,17 +312,22 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
 
     refreshPromise = (async () => {
       try {
-        const csrf = await fetchCsrfToken();
-        const response = await rawFetch<AuthResponse>("/api/v1/auth/refresh", {
+        const headers = new Headers();
+        if (fallbackRefreshToken) {
+          headers.set("X-Refresh-Token", fallbackRefreshToken);
+        }
+
+        const response = await rawFetch<AuthResponse & { refreshToken?: string }>("/api/v1/auth/refresh", {
           method: "POST",
           credentials: "include",
-          headers: {
-            "X-CSRF-TOKEN": csrf,
-          },
+          headers,
         });
 
         if (response && response.accessToken) {
           setAccessToken(response.accessToken);
+          if (response.refreshToken) {
+            setRefreshToken(response.refreshToken);
+          }
           notifyTokenRefreshed(response.accessToken);
           return response.accessToken;
         }
@@ -312,6 +364,15 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
     return accessToken;
   }
 
+  function setRefreshToken(token: string | null): void {
+    fallbackRefreshToken = token;
+    setStoredRefreshToken(token);
+  }
+
+  function getRefreshToken(): string | null {
+    return fallbackRefreshToken;
+  }
+
   function setCsrfToken(token: string | null): void {
     csrfToken = token;
   }
@@ -323,7 +384,9 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
   function clearTokens(): void {
     accessToken = null;
     csrfToken = null;
+    fallbackRefreshToken = null;
     setStoredToken(null);
+    setStoredRefreshToken(null);
   }
 
   /**
@@ -488,6 +551,8 @@ export function createApiClient(config: ApiClientConfig = {}): IApiClient {
   // State & token management
   client.setAccessToken = setAccessToken;
   client.getAccessToken = getAccessToken;
+  client.setRefreshToken = setRefreshToken;
+  client.getRefreshToken = getRefreshToken;
   client.setCsrfToken = setCsrfToken;
   client.getCsrfToken = getCsrfToken;
   client.clearTokens = clearTokens;

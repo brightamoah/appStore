@@ -7,37 +7,49 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+# Dependencies
+node_modules/
+
+# OS Files
 .DS_Store
-dist
-dist-ssr
-coverage
+Thumbs.db
+
+# Build & Dist
+dist/
+dist-ssr/
+coverage/
 *.local
+
+# MSBuild (Visual Studio JavaScript/TypeScript project system)
+[Oo]bj/
+[Bb]in/
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
-*.vs
 
+# TypeScript & Lint caches
 *.tsbuildinfo
-
 .eslintcache
+.stylelintcache
 
-# Cypress
+# Cypress & Vitest
 /cypress/videos/
 /cypress/screenshots/
-
-# Vitest
 __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
 
+# Auto-generated type declarations & configs
 auto-imports.d.ts
 components.d.ts
+typed-router.d.ts
+.eslintrc-auto-import.json

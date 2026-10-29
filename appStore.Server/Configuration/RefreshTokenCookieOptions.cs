@@ -1,4 +1,4 @@
-﻿namespace appStore.Server.Configuration
+namespace appStore.Server.Configuration
 {
 	public sealed class RefreshTokenCookieOptions
 	{
@@ -6,6 +6,6 @@
 		public const string Path = "/";
 		public const bool HttpOnly = true;
 		public const bool Secure = true;
-		public const SameSiteMode SameSite = SameSiteMode.Strict;
+		public const SameSiteMode SameSite = SameSiteMode.Lax;
 	}
 }

@@ -1,0 +1,99 @@
+================================================================================
+APPSTORE - APPLICATION STARTUP & DEVELOPMENT COMMANDS
+================================================================================
+
+--------------------------------------------------------------------------------
+1. PREREQUISITES & ENVIRONMENT SETUP
+--------------------------------------------------------------------------------
+Ensure the following tools are installed:
+- .NET 10.0 SDK          (Verify with: dotnet --version)
+- Node.js >=22.18.0 / 24 (Verify with: node -v)
+- pnpm >=12.0            (Verify with: pnpm -v)
+
+Trust local ASP.NET Core HTTPS development certificates (required for secure
+communication between browser, Vite dev server, and backend Web API):
+  dotnet dev-certs https --trust
+
+--------------------------------------------------------------------------------
+2. INITIAL REPOSITORY SETUP (FIRST RUN ONLY)
+--------------------------------------------------------------------------------
+Install frontend npm dependencies:
+  cd appstore.client
+  pnpm install
+  cd ..
+  (Alternatively from repository root: pnpm --dir appstore.client install)
+
+Restore backend NuGet dependencies and compile:
+  dotnet restore
+  dotnet build
+
+--------------------------------------------------------------------------------
+3. STARTING THE APPLICATION
+--------------------------------------------------------------------------------
+METHOD A: UNIFIED FULL-STACK VIA SPA PROXY (RECOMMENDED)
+--------------------------------------------------------------------------------
+appStore.Server is configured with Microsoft.AspNetCore.SpaProxy. Running the
+backend will automatically start the Vue 3.5 / Nuxt UI Vite dev server in the
+background.
+
+From repository root:
+  dotnet run --project appStore.Server --launch-profiles https
+
+From the appStore.Server directory:
+  cd appStore.Server
+  dotnet run --launch-profiles https
+
+* Note: Either '--launch-profiles https' or '--launch-profile https' is accepted
+  by the dotnet CLI.
+
+--------------------------------------------------------------------------------
+METHOD B: SEPARATE TERMINALS (INDEPENDENT SERVERS)
+--------------------------------------------------------------------------------
+Terminal 1 - Backend Web API:
+  cd appStore.Server
+  dotnet run --launch-profiles https
+  (Or use hot reload: dotnet watch --launch-profiles https)
+
+Terminal 2 - Frontend Client:
+  cd appstore.client
+  pnpm dev
+
+--------------------------------------------------------------------------------
+4. ACCESS URLS & SERVICES
+--------------------------------------------------------------------------------
+- Frontend SPA Application:  https://localhost:63175
+- Backend Web API:           https://localhost:7089
+- Swagger / OpenAPI UI:      https://localhost:7089/swagger
+- Backend HTTP (Fallback):   http://localhost:5044
+
+--------------------------------------------------------------------------------
+5. DATABASE MANAGEMENT (EF CORE & SQLITE)
+--------------------------------------------------------------------------------
+The application automatically runs migrations and seeds default roles,
+permissions, and priorities upon startup via app.MigrateDatabase() in Program.cs.
+
+If manual EF Core CLI management is needed:
+- Apply pending migrations to SQLite (appstore.db):
+    dotnet ef database update --project appStore.Server
+
+- Create a new migration after model changes:
+    dotnet ef migrations add <MigrationName> --project appStore.Server
+
+- Remove last unapplied migration:
+    dotnet ef migrations remove --project appStore.Server
+
+--------------------------------------------------------------------------------
+6. TESTING & CODE QUALITY CHECKS
+--------------------------------------------------------------------------------
+Run Backend Unit & Integration Tests:
+  dotnet test
+  (Or specifically: dotnet test appStore.Server.Tests)
+
+Run Frontend TypeScript Type-Checking:
+  cd appstore.client && pnpm run type-check
+
+Run Frontend Code Linting & Auto-Fixes:
+  cd appstore.client && pnpm run lint
+
+Build Frontend Production Assets:
+  cd appstore.client && pnpm run build
